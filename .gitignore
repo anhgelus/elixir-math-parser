@@ -22,3 +22,5 @@ erl_crash.dump
 # Ignore package tarball (built via "mix hex.build").
 elixir_math_parser-*.tar
 
+src/elixir_math_parser*.erl
+
