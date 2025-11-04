@@ -9,6 +9,8 @@ Rules.
 \*            : {token, {'*',  TokenLine}}.
 \/            : {token, {'/',  TokenLine}}.
 \=            : {token, {'=',  TokenLine}}.
+\(            : {token, {'(',  TokenLine}}.
+\)            : {token, {')',  TokenLine}}.
 {NAME}        : {token, {atom, TokenLine, to_atom(TokenChars)}}.
 {INT}         : {token, {int,  TokenLine, TokenChars}}.
 {WHITESPACE}+ : skip_token.

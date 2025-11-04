@@ -13,6 +13,8 @@ Terminals
   '*'
   '/'
   '='
+  '('
+  ')'
 .
 
 Rootsymbol
@@ -24,6 +26,7 @@ Left 300 '+'.
 Left 300 '-'.
 Left 400 '*'.
 Left 400 '/'.
+Left 600 '('.
 
 root -> assignments : '$1'.
 
@@ -38,6 +41,7 @@ expr -> expr '+' expr : {add_op, '$1', '$3'}.
 expr -> expr '-' expr : {sub_op, '$1', '$3'}.
 expr -> expr '*' expr : {mul_op, '$1', '$3'}.
 expr -> expr '/' expr : {div_op, '$1', '$3'}.
+expr -> '(' expr ')'  : '$2'.
 
 Erlang code.
 
