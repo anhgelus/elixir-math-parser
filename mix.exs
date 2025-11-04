@@ -9,6 +9,7 @@ defmodule ElixirMathParser.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       escript: [main_module: ElixirMathParser.Main],
+      compilers: [:yecc, :leex] ++ Mix.compilers()
     ]
   end
 
