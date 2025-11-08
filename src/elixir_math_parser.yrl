@@ -31,11 +31,12 @@ Left 600 '('.
 
 root -> statements : '$1'.
 
-statements -> statement : '$1'.
-statements -> statement statements : lists:merge('$1', '$2').
-statements -> statement ';;' statements : lists:merge('$1', '$3').
+statements -> statement : ['$1'].
+statements -> statement statements : ['$1'|'$2'].
+statements -> statement ';;' statements : ['$1'|'$3'].
 
-statement -> atom '=' expr : [{assign, '$1', '$3'}].
+statement -> atom '=' expr : {assign, '$1', '$3'}.
+statement -> expr : {eval, '$1'}.
 
 expr -> int : unwrap('$1').
 expr -> atom : '$1'.

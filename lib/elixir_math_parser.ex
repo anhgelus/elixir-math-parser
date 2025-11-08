@@ -49,6 +49,13 @@ defmodule ElixirMathParser do
     end
   end
 
+  defp evaluate_tree([{:eval, expr} | tail], state) do
+    with {:ok, expr} <- reduce_to_value(expr, state) do
+      IO.puts(expr)
+      evaluate_tree(tail, state)
+    end
+  end
+
   defp evaluate_tree([], state) do
     {:ok, state}
   end
