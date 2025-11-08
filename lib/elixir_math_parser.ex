@@ -7,11 +7,11 @@ defmodule ElixirMathParser do
     {:ok, value}
   end
 
-  defp reduce_to_value({:atom, _line, atom}, state) do
-    if !Map.has_key?(state, atom) do
-      {:error, "value not found for " <> to_string(atom)}
+  defp reduce_to_value({:var, _line, var}, state) do
+    if !Map.has_key?(state, var) do
+      {:error, "value not found for " <> to_string(var)}
     else
-      {:ok, state[atom]}
+      {:ok, state[var]}
     end
   end
 
@@ -43,7 +43,7 @@ defmodule ElixirMathParser do
     end
   end
 
-  defp evaluate_tree([{:assign, {:atom, _line, lhs}, rhs} | tail], state) do
+  defp evaluate_tree([{:assign, {:var, _line, lhs}, rhs} | tail], state) do
     with {:ok, val} <- reduce_to_value(rhs, state) do
       evaluate_tree(tail, Map.merge(state, %{lhs => val}))
     end
