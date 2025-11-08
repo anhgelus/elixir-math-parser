@@ -16,36 +16,41 @@ defmodule ElixirMathParser do
   end
 
   defp reduce_to_value({:add_op, lhs, rhs}, state) do
-    {:ok, op1} = reduce_to_value(lhs, state)
-    {:ok, op2} = reduce_to_value(rhs, state)
-    {:ok, op1 + op2}
+    with {:ok, op1} <- reduce_to_value(lhs, state),
+         {:ok, op2} <- reduce_to_value(rhs, state) do
+      {:ok, op1 + op2}
+    end
   end
 
   defp reduce_to_value({:sub_op, lhs, rhs}, state) do
-    {:ok, op1} = reduce_to_value(lhs, state)
-    {:ok, op2} = reduce_to_value(rhs, state)
-    {:ok, op1 - op2}
+    with {:ok, op1} <- reduce_to_value(lhs, state),
+         {:ok, op2} <- reduce_to_value(rhs, state) do
+      {:ok, op1 - op2}
+    end
   end
 
   defp reduce_to_value({:mul_op, lhs, rhs}, state) do
-    {:ok, op1} = reduce_to_value(lhs, state)
-    {:ok, op2} = reduce_to_value(rhs, state)
-    {:ok, op1 / op2}
+    with {:ok, op1} <- reduce_to_value(lhs, state),
+         {:ok, op2} <- reduce_to_value(rhs, state) do
+      {:ok, op1 * op2}
+    end
   end
 
   defp reduce_to_value({:div_op, lhs, rhs}, state) do
-    {:ok, op1} = reduce_to_value(lhs, state)
-    {:ok, op2} = reduce_to_value(rhs, state)
-    {:ok, op1 / op2}
+    with {:ok, op1} <- reduce_to_value(lhs, state),
+         {:ok, op2} <- reduce_to_value(rhs, state) do
+      {:ok, op1 / op2}
+    end
   end
 
   defp evaluate_tree([{:assign, {:atom, _line, lhs}, rhs} | tail], state) do
-    {:ok, rhs_value} = reduce_to_value(rhs, state)
-    evaluate_tree(tail, Map.merge(state, %{lhs => rhs_value}))
+    with {:ok, val} <- reduce_to_value(rhs, state) do
+      evaluate_tree(tail, Map.merge(state, %{lhs => val}))
+    end
   end
 
   defp evaluate_tree([], state) do
-    state
+    {:ok, state}
   end
 
   def process_tree(tree) do
