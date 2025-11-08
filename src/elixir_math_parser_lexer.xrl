@@ -17,6 +17,3 @@ Rules.
 {WHITESPACE}+ : skip_token.
 
 Erlang code.
-% Given a ":name", chop off : and return name as an atom.
-to_atom([$:|Chars]) ->
-    list_to_atom(Chars).

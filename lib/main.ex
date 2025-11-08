@@ -7,8 +7,9 @@ defmodule ElixirMathParser.Main do
   def process_parse({:ok, tree}) do
     IO.puts("\nParse tree")
     IO.inspect(tree, pretty: true)
+
     case ElixirMathParser.process_tree(tree) do
-      {:ok, _} -> :ok 
+      {:ok, _} -> :ok
       {:error, reason} -> reason
     end
   end
@@ -23,6 +24,7 @@ defmodule ElixirMathParser.Main do
     IO.puts("Parsed #{filename}, stopped at line #{line}")
 
     res = process_parse(:elixir_math_parser.parse(tokens))
+
     if res != :ok do
       IO.puts(res)
     end

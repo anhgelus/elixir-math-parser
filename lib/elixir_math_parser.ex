@@ -3,8 +3,11 @@ defmodule ElixirMathParser do
   Documentation for `ElixirMathParser`.
   """
 
+  defdelegate numerator <~> denominator, to: Ratio, as: :new
+  use Numbers, overload_operators: true
+
   defp reduce_to_value({:int, _line, value}, _state) do
-    {:ok, value}
+    {:ok, value <~> 1}
   end
 
   defp reduce_to_value({:var, _line, var}, state) do
@@ -51,7 +54,14 @@ defmodule ElixirMathParser do
 
   defp evaluate_tree([{:eval, expr} | tail], state) do
     with {:ok, expr} <- reduce_to_value(expr, state) do
-      IO.puts(expr)
+      num = Ratio.numerator(expr)
+      den = Ratio.denominator(expr)
+
+      case den do
+        1 -> IO.puts(num)
+        _ -> IO.puts("#{num}/#{den}")
+      end
+
       evaluate_tree(tail, state)
     end
   end
