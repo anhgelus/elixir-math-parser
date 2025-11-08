@@ -39,25 +39,25 @@ defmodule ElixirMathParserTest do
 
   test "variable reference" do
     assert parse_and_eval("""
-    :a = 3
-    :b = 2
-    :result = :a + :b
-    """) == %{a: 3, b: 2, result: 5}
+           :a = 3
+           :b = 2
+           :result = :a + :b
+           """) == %{a: 3, b: 2, result: 5}
   end
 
   test "variable update" do
     assert parse_and_eval("""
-    :a = 3
-    :b = 2
-    :a = :a + :b
-    """) == %{a: 5, b: 2}
+           :a = 3
+           :b = 2
+           :a = :a + :b
+           """) == %{a: 5, b: 2}
   end
 
   test "variables with numbers in name" do
     assert parse_and_eval("""
-    :a1 = 3
-    :a2 = 2
-    :b1 = :a1 + :a2
-    """) == %{a1: 3, a2: 2, b1: 5}
+           :a1 = 3
+           :a2 = 2
+           :b1 = :a1 + :a2
+           """) == %{a1: 3, a2: 2, b1: 5}
   end
 end

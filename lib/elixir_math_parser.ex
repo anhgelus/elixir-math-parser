@@ -4,46 +4,58 @@ defmodule ElixirMathParser do
   """
 
   defp reduce_to_value({:int, _line, value}, _state) do
-    value
-  end
-
-  defp reduce_to_value({:add_op, lhs, rhs}, state) do
-    reduce_to_value(lhs, state) + reduce_to_value(rhs, state)
-  end
-
-  defp reduce_to_value({:sub_op, lhs, rhs}, state) do
-    reduce_to_value(lhs, state) - reduce_to_value(rhs, state)
-  end
-
-  defp reduce_to_value({:mul_op, lhs, rhs}, state) do
-    reduce_to_value(lhs, state) * reduce_to_value(rhs, state)
-  end
-
-  defp reduce_to_value({:div_op, lhs, rhs}, state) do
-    reduce_to_value(lhs, state) / reduce_to_value(rhs, state)
+    {:ok, value}
   end
 
   defp reduce_to_value({:atom, _line, atom}, state) do
-    state[atom]
+    if !Map.has_key?(state, atom) do
+      {:error, "value not found for " <> to_string(atom)}
+    else
+      {:ok, state[atom]}
+    end
   end
-  
+
+  defp reduce_to_value({:add_op, lhs, rhs}, state) do
+    {:ok, op1} = reduce_to_value(lhs, state)
+    {:ok, op2} = reduce_to_value(rhs, state)
+    {:ok, op1 + op2}
+  end
+
+  defp reduce_to_value({:sub_op, lhs, rhs}, state) do
+    {:ok, op1} = reduce_to_value(lhs, state)
+    {:ok, op2} = reduce_to_value(rhs, state)
+    {:ok, op1 - op2}
+  end
+
+  defp reduce_to_value({:mul_op, lhs, rhs}, state) do
+    {:ok, op1} = reduce_to_value(lhs, state)
+    {:ok, op2} = reduce_to_value(rhs, state)
+    {:ok, op1 / op2}
+  end
+
+  defp reduce_to_value({:div_op, lhs, rhs}, state) do
+    {:ok, op1} = reduce_to_value(lhs, state)
+    {:ok, op2} = reduce_to_value(rhs, state)
+    {:ok, op1 / op2}
+  end
+
   defp evaluate_tree([{:assign, {:atom, _line, lhs}, rhs} | tail], state) do
-    rhs_value = reduce_to_value(rhs, state)
+    {:ok, rhs_value} = reduce_to_value(rhs, state)
     evaluate_tree(tail, Map.merge(state, %{lhs => rhs_value}))
   end
 
-   defp evaluate_tree([], state) do
-     state
-   end
+  defp evaluate_tree([], state) do
+    state
+  end
 
-   def process_tree(tree) do
-     evaluate_tree(tree, %{})
-   end
+  def process_tree(tree) do
+    evaluate_tree(tree, %{})
+  end
 
-   def parse_file(filename) do
-     text = File.read!(filename)
-     {:ok, tokens, _line} = :elixir_math_parser_lexer.string(String.to_charlist(text))
-     {:ok, tree} = :elixir_math_parser.parse(tokens)
-     process_tree(tree)        
-   end
+  def parse_file(filename) do
+    text = File.read!(filename)
+    {:ok, tokens, _line} = :elixir_math_parser_lexer.string(String.to_charlist(text))
+    {:ok, tree} = :elixir_math_parser.parse(tokens)
+    process_tree(tree)
+  end
 end

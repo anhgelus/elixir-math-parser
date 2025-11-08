@@ -1,7 +1,7 @@
 Definitions.
 INT        = [0-9]+
 NAME       = :[a-zA-Z_][a-zA-Z0-9_]*
-WHITESPACE = [\s\t\n\r]|;{2}
+WHITESPACE = [\s\t\n\r]
 
 Rules.
 \+            : {token, {'+',  TokenLine}}.
@@ -11,6 +11,7 @@ Rules.
 \=            : {token, {'=',  TokenLine}}.
 \(            : {token, {'(',  TokenLine}}.
 \)            : {token, {')',  TokenLine}}.
+;;            : {token, {';;',  TokenLine}}.
 {NAME}        : {token, {atom, TokenLine, to_atom(TokenChars)}}.
 {INT}         : {token, {int,  TokenLine, TokenChars}}.
 {WHITESPACE}+ : skip_token.

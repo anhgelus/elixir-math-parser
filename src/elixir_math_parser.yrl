@@ -1,7 +1,7 @@
 Nonterminals
   root
-  assignment
-  assignments
+  statement
+  statements
   expr
 .
 
@@ -15,6 +15,7 @@ Terminals
   '='
   '('
   ')'
+  ';;'
 .
 
 Rootsymbol
@@ -28,12 +29,13 @@ Left 400 '*'.
 Left 400 '/'.
 Left 600 '('.
 
-root -> assignments : '$1'.
+root -> statements : '$1'.
 
-assignments -> assignment : '$1'.
-assignments -> assignment assignments : lists:merge('$1', '$2').
+statements -> statement : '$1'.
+statements -> statement statements : lists:merge('$1', '$2').
+statements -> statement ';;' statements : lists:merge('$1', '$3').
 
-assignment -> atom '=' expr : [{assign, '$1', '$3'}].
+statement -> atom '=' expr : [{assign, '$1', '$3'}].
 
 expr -> int : unwrap('$1').
 expr -> atom : '$1'.
