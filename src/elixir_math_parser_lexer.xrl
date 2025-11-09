@@ -14,6 +14,7 @@ Rules.
 \(            : {token, {'(',  TokenLine}}.
 \)            : {token, {')',  TokenLine}}.
 !             : {token, {'!',  TokenLine}}.
+\^            : {token, {'^',  TokenLine}}.
 {BREAK}+      : {token, {break,  TokenLine}}.
 {NAME}        : {token, {var, TokenLine, TokenChars}}.
 {INT}         : {token, {int,  TokenLine, TokenChars}}.
