@@ -2,12 +2,10 @@ defmodule ElixirMathParser do
   @moduledoc """
   Documentation for `ElixirMathParser`.
   """
-
-  defdelegate numerator <~> denominator, to: Ratio, as: :new
-  use Numbers, overload_operators: true
+  alias ElixirMathParser.Math.Rational
 
   defp reduce_to_value({:int, _line, value}, _state) do
-    {:ok, value <~> 1}
+    {:ok, Rational.new(value, 1)}
   end
 
   defp reduce_to_value({:var, line, var}, state) do
@@ -21,36 +19,36 @@ defmodule ElixirMathParser do
   defp reduce_to_value({:add_op, lhs, rhs}, state) do
     with {:ok, op1} <- reduce_to_value(lhs, state),
          {:ok, op2} <- reduce_to_value(rhs, state) do
-      {:ok, op1 + op2}
+      {:ok, Rational.add(op1, op2)}
     end
   end
 
   defp reduce_to_value({:sub_op, lhs, rhs}, state) do
     with {:ok, op1} <- reduce_to_value(lhs, state),
          {:ok, op2} <- reduce_to_value(rhs, state) do
-      {:ok, op1 - op2}
+      {:ok, Rational.sub(op1, op2)}
     end
   end
 
   defp reduce_to_value({:mul_op, lhs, rhs}, state) do
     with {:ok, op1} <- reduce_to_value(lhs, state),
          {:ok, op2} <- reduce_to_value(rhs, state) do
-      {:ok, op1 * op2}
+      {:ok, Rational.mult(op1, op2)}
     end
   end
 
   defp reduce_to_value({:div_op, lhs, rhs}, state) do
     with {:ok, op1} <- reduce_to_value(lhs, state),
          {:ok, op2} <- reduce_to_value(rhs, state) do
-      {:ok, op1 / op2}
+      {:ok, Rational.div(op1, op2)}
     end
   end
 
   defp reduce_to_value({:factor_op, lhs}, state) do
     with {:ok, op} <- reduce_to_value(lhs, state),
-         true <- Ratio.denominator(op) == 1,
-         true <- Ratio.numerator(op) >= 0 do
-      {:ok, factor(Ratio.numerator(op), 1)}
+         true <- Rational.denominator(op) == 1,
+         true <- Rational.numerator(op) >= 0 do
+      {:ok, factor(Rational.numerator(op), 1)}
     else
       {:error, line, reason} -> {:error, line, reason}
       false -> {:error, "must have a positive integer for the factorial"}
@@ -60,8 +58,8 @@ defmodule ElixirMathParser do
   defp reduce_to_value({:exp_op, lhs, rhs}, state) do
     with {:ok, op1} <- reduce_to_value(lhs, state),
          {:ok, op2} <- reduce_to_value(rhs, state) do
-      if Ratio.denominator(op2) == 1 do
-        {:ok, expo(op1, Ratio.numerator(op2), 1)}
+      if Rational.denominator(op2) == 1 do
+        {:ok, expo(op1, Rational.numerator(op2), Rational.new(1, 1))}
       else
         {:error, "unsupported operation"}
       end
@@ -71,10 +69,14 @@ defmodule ElixirMathParser do
   # Functions for maths
 
   defp factor(n, acc) when n > 0, do: factor(n - 1, acc * n)
-  defp factor(0, acc), do: acc
+  defp factor(0, acc), do: Rational.new(acc, 1)
 
-  defp expo(value, exponent, acc) when exponent > 0, do: expo(value, exponent - 1, acc * value)
-  defp expo(value, exponent, acc) when exponent < 0, do: expo(value, exponent + 1, acc / value)
+  defp expo(value, exponent, acc) when exponent > 0,
+    do: expo(value, exponent - 1, Rational.mult(acc, value))
+
+  defp expo(value, exponent, acc) when exponent < 0,
+    do: expo(value, exponent + 1, Rational.div(acc, value))
+
   defp expo(_value, 0, acc), do: acc
 
   defp evaluate_tree([{:assign, {:var, line, lhs}, rhs} | tail], state) do
@@ -87,8 +89,8 @@ defmodule ElixirMathParser do
 
   defp evaluate_tree([{:eval, expr} | tail], state) do
     with {:ok, expr} <- reduce_to_value(expr, state) do
-      num = Ratio.numerator(expr)
-      den = Ratio.denominator(expr)
+      num = Rational.numerator(expr)
+      den = Rational.denominator(expr)
 
       case den do
         1 -> IO.puts(num)
