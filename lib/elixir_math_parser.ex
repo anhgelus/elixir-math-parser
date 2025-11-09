@@ -68,19 +68,13 @@ defmodule ElixirMathParser do
     end
   end
 
-  #  Functions for maths
+  # Functions for maths
 
   defp factor(n, acc) when n > 0, do: factor(n - 1, acc * n)
   defp factor(0, acc), do: acc
 
-  defp expo(value, exponent, acc) when exponent != 0 do
-    if exponent > 0 do
-      expo(value, exponent - 1, acc * value)
-    else
-      expo(value, exponent + 1, acc / value)
-    end
-  end
-
+  defp expo(value, exponent, acc) when exponent > 0, do: expo(value, exponent - 1, acc * value)
+  defp expo(value, exponent, acc) when exponent < 0, do: expo(value, exponent + 1, acc / value)
   defp expo(_value, 0, acc), do: acc
 
   defp evaluate_tree([{:assign, {:var, line, lhs}, rhs} | tail], state) do
