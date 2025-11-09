@@ -1,5 +1,5 @@
 Definitions.
-INT        = [0-9]+
+INT        = [0-9_]+
 NAME       = [a-zA-Z_][a-zA-Z0-9_]*
 WHITESPACE = [\s\t\r]
 COMMENT    = #[^\n]*\n?

@@ -54,4 +54,6 @@ expr -> '-' exprs : {sub_op, {int, 0, 0}, '$2'}.
 
 Erlang code.
 
-unwrap({int, Line, Value}) -> {int, Line, list_to_integer(Value)}.
+unwrap({int, Line, Value}) -> 
+    Match = fun(X) -> not(X == 95) end,
+    {int, Line, list_to_integer(lists:filter(Match, Value))}.
