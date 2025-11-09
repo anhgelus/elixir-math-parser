@@ -11,6 +11,7 @@ defmodule ElixirMathParser.Main do
 
     case ElixirMathParser.process_tree(tree) do
       {:ok, _} -> :ok
+      {:error, line, reason} -> reason <> " (line " <> to_string(line) <> ")"
       {:error, reason} -> reason
     end
   end

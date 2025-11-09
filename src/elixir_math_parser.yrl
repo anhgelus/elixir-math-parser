@@ -10,7 +10,7 @@ Terminals
   int
   var
   break
-  '+' '-' '*' '/'
+  '+' '-' '*' '/' '!'
   '='
   '(' ')'
 .
@@ -24,6 +24,7 @@ Left 300 '+'.
 Left 300 '-'.
 Left 400 '*'.
 Left 400 '/'.
+Right 500 '!'.
 Left 600 '('.
 
 root -> statements : '$1'.
@@ -46,6 +47,7 @@ expr -> exprs '-' exprs : {sub_op, '$1', '$3'}.
 expr -> exprs '*' exprs : {mul_op, '$1', '$3'}.
 expr -> exprs '/' exprs : {div_op, '$1', '$3'}.
 expr -> '(' exprs ')' : '$2'.
+expr -> expr '!' : {factor_op, '$1'}.
 
 Erlang code.
 
