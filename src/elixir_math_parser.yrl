@@ -50,6 +50,7 @@ expr -> exprs '/' exprs : {div_op, '$1', '$3'}.
 expr -> expr '!' : {factor_op, '$1'}.
 expr -> exprs '^' exprs : {exp_op, '$1', '$3'}.
 expr -> '(' exprs ')' : '$2'.
+expr -> '-' exprs : {sub_op, {int, 0, 0}, '$2'}.
 
 Erlang code.
 
