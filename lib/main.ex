@@ -1,7 +1,8 @@
 defmodule ElixirMathParser.Main do
   def process_parse({:error, result}) do
-    IO.puts("\nParse error")
-    IO.inspect(result)
+    {line, _file, errors} = result
+    err = Enum.join(errors)
+    err <> " (line " <> to_string(line) <> ")"
   end
 
   def process_parse({:ok, tree}) do
@@ -26,7 +27,7 @@ defmodule ElixirMathParser.Main do
     res = process_parse(:elixir_math_parser.parse(tokens))
 
     if res != :ok do
-      IO.puts(res)
+      IO.puts(:stderr, "\n" <> res)
     end
   end
 end

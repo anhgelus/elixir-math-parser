@@ -3,19 +3,16 @@ Nonterminals
   statement
   statements
   expr
+  exprs
 .
 
 Terminals
   int
   var
-  '+'
-  '-'
-  '*'
-  '/'
+  break
+  '+' '-' '*' '/'
   '='
-  '('
-  ')'
-  ';;'
+  '(' ')'
 .
 
 Rootsymbol
@@ -33,18 +30,22 @@ root -> statements : '$1'.
 
 statements -> statement : ['$1'].
 statements -> statement statements : ['$1'|'$2'].
-statements -> statement ';;' statements : ['$1'|'$3'].
+statements -> statement break statements : ['$1'|'$3'].
+statements -> break : [].
 
-statement -> var '=' expr : {assign, '$1', '$3'}.
-statement -> expr : {eval, '$1'}.
+statement -> var '=' exprs : {assign, '$1', '$3'}.
+statement -> exprs : {eval, '$1'}.
+
+exprs -> expr       : '$1'.
+exprs -> expr exprs : {mul_op, '$1', '$2'}.
 
 expr -> int : unwrap('$1').
 expr -> var : '$1'.
-expr -> expr '+' expr : {add_op, '$1', '$3'}.
-expr -> expr '-' expr : {sub_op, '$1', '$3'}.
-expr -> expr '*' expr : {mul_op, '$1', '$3'}.
-expr -> expr '/' expr : {div_op, '$1', '$3'}.
-expr -> '(' expr ')'  : '$2'.
+expr -> exprs '+' exprs : {add_op, '$1', '$3'}.
+expr -> exprs '-' exprs : {sub_op, '$1', '$3'}.
+expr -> exprs '*' exprs : {mul_op, '$1', '$3'}.
+expr -> exprs '/' exprs : {div_op, '$1', '$3'}.
+expr -> '(' exprs ')' : '$2'.
 
 Erlang code.
 
