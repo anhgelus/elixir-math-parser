@@ -83,9 +83,8 @@ defmodule ElixirMathParser.Math.Rational do
   iex> Rational.is_rational("My quick brown fox")
   false
   """
-  defguard is_rational(val)
-           when is_map(val) and is_map_key(val, :__struct__) and is_struct(val) and
-                  :erlang.map_get(:__struct__, val) == __MODULE__
+  def is_rational(val) when is_map(val) and is_map_key(val, :__struct__) and is_struct(val),
+    do: :erlang.map_get(:__struct__, val) == __MODULE__
 
   @doc """
   Creates a new Rational number.

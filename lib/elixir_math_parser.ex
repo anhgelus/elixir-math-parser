@@ -5,6 +5,7 @@ defmodule ElixirMathParser do
   alias ElixirMathParser.Math.Rational
   alias ElixirMathParser.Math.Calc
   alias ElixirMathParser.Math.Conversion
+  alias ElixirMathParser.Math.Function
 
   defp reduce_to_value({:int, _line, value}, _state) do
     {:ok, Rational.new(value)}
@@ -76,11 +77,35 @@ defmodule ElixirMathParser do
     end
   end
 
+  defp reduce_to_value({:eval_func, {:var, line, var}, params}, state) do
+    if !Map.has_key?(state, var) do
+      {:error, line, "function " <> to_string(var) <> " not found"}
+    else
+      v = state[var]
+
+      # check if the mult is implicit
+      if Rational.is_rational(v) do
+        [head | _] = params
+        reduce_to_value({:mul_op, {:var, line, var}, head}, state)
+      else
+        params = Enum.map(params, fn v -> with {:ok, v} <- reduce_to_value(v, state), do: v end)
+
+        with {:ok, v} <- state[var] |> Function.eval(params) do
+          {:ok, v}
+        else
+          {:error, reason} -> {:error, line, reason}
+          {:error, line, reason} -> {:error, line, reason}
+        end
+      end
+    end
+  end
+
   defp evaluate_tree([{:assign, {:var, line, lhs}, rhs} | tail], state) do
     with {:ok, val} <- reduce_to_value(rhs, state) do
       evaluate_tree(tail, Map.merge(state, %{lhs => val}))
     else
       {:error, reason} -> {:error, line, reason}
+      {:error, line, reason} -> {:error, line, reason}
     end
   end
 
@@ -90,6 +115,21 @@ defmodule ElixirMathParser do
 
       evaluate_tree(tail, state)
     end
+  end
+
+  defp evaluate_tree([{:assign_func, {:var, _line, name}, vars, expr} | tail], state) do
+    fun =
+      Function.new(
+        fn params, given ->
+          state =
+            Enum.reduce(given, state, fn {v, id}, acc -> Map.merge(acc, %{params[id] => v}) end)
+
+          reduce_to_value(expr, state)
+        end,
+        Enum.map(vars, fn {:var, _line, name} -> name end)
+      )
+
+    evaluate_tree(tail, Map.merge(state, %{name => fun}))
   end
 
   defp evaluate_tree([], state) do

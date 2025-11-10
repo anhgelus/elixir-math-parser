@@ -4,15 +4,21 @@ Nonterminals
   statements
   expr
   exprs
+  % function specific
+  vars params
 .
 
 Terminals
   int float
   var
   break
+  % eval
   '+' '-' '*' '/' '!' '^'
-  '='
   '(' ')'
+  % assign
+  '='
+  % function specific
+  ':' ','
 .
 
 Rootsymbol
@@ -37,13 +43,22 @@ statements -> break : [].
 
 statement -> var '=' exprs : {assign, '$1', '$3'}.
 statement -> exprs : {eval, '$1'}.
+statement -> var ':' vars '=' exprs : {assign_func, '$1', '$3', '$5'}.
 
-exprs -> expr       : '$1'.
+vars -> var : ['$1'].
+vars -> var ',' vars : ['$1' | '$3'].
+
+exprs -> expr : '$1'.
 exprs -> expr exprs : {mul_op, '$1', '$2'}.
+
+params -> expr : ['$1'].
+params -> expr ',' : ['$1'].
+params -> expr ',' params : ['$1' | '$3'].
 
 expr -> int : unwrap('$1').
 expr -> float : unwrap('$1').
 expr -> var : '$1'.
+
 expr -> exprs '+' exprs : {add_op, '$1', '$3'}.
 expr -> exprs '-' exprs : {sub_op, '$1', '$3'}.
 expr -> exprs '*' exprs : {mul_op, '$1', '$3'}.
@@ -52,6 +67,8 @@ expr -> expr '!' : {factor_op, '$1'}.
 expr -> exprs '^' exprs : {exp_op, '$1', '$3'}.
 expr -> '(' exprs ')' : '$2'.
 expr -> '-' exprs : {sub_op, {int, 0, 0}, '$2'}.
+
+expr -> var '(' params ')' : {eval_func, '$1', '$3'}.
 
 Erlang code.
 
