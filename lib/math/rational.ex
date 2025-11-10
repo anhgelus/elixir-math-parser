@@ -132,6 +132,10 @@ defmodule ElixirMathParser.Math.Rational do
     div(numerator, %Rational{numerator: denominator, denominator: 1})
   end
 
+  def newRaw(numerator, denominator) when is_integer(numerator) and is_integer(denominator) do
+    %Rational{numerator: numerator, denominator: denominator}
+  end
+
   @doc """
   Returns the absolute version of the given number (which might be an integer, float or Rational).
 
@@ -424,9 +428,9 @@ defmodule ElixirMathParser.Math.Rational do
   # Simplifies the Rational to its most basic form.
   # Which might result in an integer.
   # Ensures that a `-` is only kept in the numerator.
-  defp simplify(rational)
+  def simplify(rational)
 
-  defp simplify(%Rational{numerator: numerator, denominator: denominator}) do
+  def simplify(%Rational{numerator: numerator, denominator: denominator}) do
     gcdiv = gcd(numerator, denominator)
     denominator = Kernel.div(denominator, gcdiv)
 

@@ -9,10 +9,11 @@ defmodule ElixirMathParser.Math.Conversion do
       if v != "." do
         num = Rational.numerator(acc) * 10
         den = Rational.denominator(acc) * 10
-        Rational.new(num + String.to_integer(v), den)
+        Rational.newRaw(num + String.to_integer(v), den)
       else
         acc
       end
     end)
+    |> Rational.simplify()
   end
 end
