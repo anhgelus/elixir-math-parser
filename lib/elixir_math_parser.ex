@@ -3,9 +3,10 @@ defmodule ElixirMathParser do
   Documentation for `ElixirMathParser`.
   """
   alias ElixirMathParser.Math.Rational
+  alias ElixirMathParser.Math.Calc
 
   defp reduce_to_value({:int, _line, value}, _state) do
-    {:ok, Rational.new(value, 1)}
+    {:ok, Rational.new(value)}
   end
 
   defp reduce_to_value({:var, line, var}, state) do
@@ -48,7 +49,7 @@ defmodule ElixirMathParser do
     with {:ok, op} <- reduce_to_value(lhs, state),
          true <- Rational.denominator(op) == 1,
          true <- Rational.numerator(op) >= 0 do
-      {:ok, factor(Rational.numerator(op), 1)}
+      {:ok, Calc.factorial(Rational.numerator(op)) |> Rational.new()}
     else
       {:error, line, reason} -> {:error, line, reason}
       false -> {:error, "must have a positive integer for the factorial"}
@@ -58,26 +59,17 @@ defmodule ElixirMathParser do
   defp reduce_to_value({:exp_op, lhs, rhs}, state) do
     with {:ok, op1} <- reduce_to_value(lhs, state),
          {:ok, op2} <- reduce_to_value(rhs, state) do
-      if Rational.denominator(op2) == 1 do
-        {:ok, expo(op1, Rational.numerator(op2), Rational.new(1, 1))}
-      else
-        {:error, "unsupported operation"}
-      end
+      {:ok,
+       Calc.pow(
+         op1,
+         if Rational.denominator(op2) == 1 do
+           Rational.numerator(op2)
+         else
+           op2
+         end
+       )}
     end
   end
-
-  # Functions for maths
-
-  defp factor(n, acc) when n > 0, do: factor(n - 1, acc * n)
-  defp factor(0, acc), do: Rational.new(acc, 1)
-
-  defp expo(value, exponent, acc) when exponent > 0,
-    do: expo(value, exponent - 1, Rational.mult(acc, value))
-
-  defp expo(value, exponent, acc) when exponent < 0,
-    do: expo(value, exponent + 1, Rational.div(acc, value))
-
-  defp expo(_value, 0, acc), do: acc
 
   defp evaluate_tree([{:assign, {:var, line, lhs}, rhs} | tail], state) do
     with {:ok, val} <- reduce_to_value(rhs, state) do
@@ -89,13 +81,7 @@ defmodule ElixirMathParser do
 
   defp evaluate_tree([{:eval, expr} | tail], state) do
     with {:ok, expr} <- reduce_to_value(expr, state) do
-      num = Rational.numerator(expr)
-      den = Rational.denominator(expr)
-
-      case den do
-        1 -> IO.puts(num)
-        _ -> IO.puts("#{num}/#{den}")
-      end
+      IO.puts(expr)
 
       evaluate_tree(tail, state)
     end

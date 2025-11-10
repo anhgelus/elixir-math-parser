@@ -405,11 +405,8 @@ defmodule ElixirMathParser.Math.Rational do
   """
   def to_string(rational)
 
-  def to_string(%Rational{numerator: numerator, denominator: denominator}) do
-    "#{numerator}" <>
-      if denominator != 1 do
-        "/#{denominator}"
-      end
+  def to_string(%Rational{numerator: num, denominator: den}) do
+    "#{num}" <> if den != 1, do: "/#{den}", else: ""
   end
 
   defimpl String.Chars, for: Rational do
@@ -440,11 +437,7 @@ defmodule ElixirMathParser.Math.Rational do
         {denominator, numerator}
       end
 
-    # if denominator == 1 do
-    #   Kernel.div(numerator, gcdiv)
-    # else
     %Rational{numerator: Kernel.div(numerator, gcdiv), denominator: denominator}
-    # end
   end
 
   # Calculates the Greatest Common denominator of two numbers.
