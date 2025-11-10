@@ -4,9 +4,14 @@ defmodule ElixirMathParser do
   """
   alias ElixirMathParser.Math.Rational
   alias ElixirMathParser.Math.Calc
+  alias ElixirMathParser.Math.Conversion
 
   defp reduce_to_value({:int, _line, value}, _state) do
     {:ok, Rational.new(value)}
+  end
+
+  defp reduce_to_value({:float, _line, value}, _state) do
+    {:ok, to_string(value) |> Conversion.literal_float_to_rational()}
   end
 
   defp reduce_to_value({:var, line, var}, state) do

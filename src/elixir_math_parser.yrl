@@ -7,7 +7,7 @@ Nonterminals
 .
 
 Terminals
-  int
+  int float
   var
   break
   '+' '-' '*' '/' '!' '^'
@@ -42,6 +42,7 @@ exprs -> expr       : '$1'.
 exprs -> expr exprs : {mul_op, '$1', '$2'}.
 
 expr -> int : unwrap('$1').
+expr -> float : unwrap('$1').
 expr -> var : '$1'.
 expr -> exprs '+' exprs : {add_op, '$1', '$3'}.
 expr -> exprs '-' exprs : {sub_op, '$1', '$3'}.
@@ -54,6 +55,9 @@ expr -> '-' exprs : {sub_op, {int, 0, 0}, '$2'}.
 
 Erlang code.
 
-unwrap({int, Line, Value}) -> 
-    Match = fun(X) -> not(X == 95) end,
-    {int, Line, list_to_integer(lists:filter(Match, Value))}.
+% 95 is the unicode of "_"
+numberMatch(X) -> not(X == 95).
+
+unwrap({int, Line, Value}) -> {int, Line, list_to_integer(lists:filter(fun numberMatch/1, Value))};
+% 48 is the unicode of "0"
+unwrap({float, Line, Value}) -> {float, Line, [48 | lists:filter(fun numberMatch/1, Value)]}.
