@@ -27,8 +27,6 @@ defmodule ElixirMathParser.Main do
 
     res = process_parse(:elixir_math_parser.parse(tokens))
 
-    if res != :ok do
-      IO.puts(:stderr, "\n" <> res)
-    end
+    if res != :ok, do: IO.puts(:stderr, "\n" <> res)
   end
 end

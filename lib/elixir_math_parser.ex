@@ -7,9 +7,7 @@ defmodule ElixirMathParser do
   alias ElixirMathParser.Math.Conversion
   alias ElixirMathParser.Math.Function
 
-  defp reduce_to_value({:int, _line, value}, _state) do
-    {:ok, Rational.new(value)}
-  end
+  defp reduce_to_value({:int, _line, value}, _state), do: {:ok, Rational.new(value)}
 
   defp reduce_to_value({:float, _line, value}, _state) do
     {:ok, to_string(value) |> Conversion.literal_float_to_rational()}
@@ -58,6 +56,7 @@ defmodule ElixirMathParser do
       {:ok, Calc.factorial(Rational.numerator(op)) |> Rational.new()}
     else
       {:error, line, reason} -> {:error, line, reason}
+      {:error, reason} -> {:error, reason}
       false -> {:error, "must have a positive integer for the factorial"}
     end
   end
@@ -90,8 +89,8 @@ defmodule ElixirMathParser do
       else
         params = Enum.map(params, fn v -> with {:ok, v} <- reduce_to_value(v, state), do: v end)
 
-        with {:ok, v} <- state[var] |> Function.eval(params) do
-          {:ok, v}
+        with {:ok, val} <- Function.eval(v, params) do
+          {:ok, val}
         else
           {:error, reason} -> {:error, line, reason}
           {:error, line, reason} -> {:error, line, reason}
@@ -132,18 +131,16 @@ defmodule ElixirMathParser do
     evaluate_tree(tail, Map.merge(state, %{name => fun}))
   end
 
-  defp evaluate_tree([], state) do
-    {:ok, state}
-  end
+  defp evaluate_tree([], state), do: {:ok, state}
 
-  def process_tree(tree) do
-    evaluate_tree(tree, %{})
-  end
+  def process_tree(tree), do: evaluate_tree(tree, %{})
 
   def parse_file(filename) do
     text = File.read!(filename)
-    {:ok, tokens, _line} = :elixir_math_parser_lexer.string(String.to_charlist(text))
-    {:ok, tree} = :elixir_math_parser.parse(tokens)
-    process_tree(tree)
+
+   with {:ok, tokens, _line} <- :elixir_math_parser_lexer.string(String.to_charlist(text)),
+         {:ok, tree} <- :elixir_math_parser.parse(tokens) do
+      process_tree(tree)
+    end
   end
 end
